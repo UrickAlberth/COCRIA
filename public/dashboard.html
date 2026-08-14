@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — CocrIA</title>
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <div id="loading" class="min-h-screen flex items-center justify-center">
+    <div class="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+  </div>
+
+  <div id="app" class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 hidden">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-white" id="dash-logo"></div>
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900">CocrIA</h1>
+            <p class="text-xs text-slate-500">Autoria de Cursos com IA</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div id="admin-links" class="flex items-center gap-2 hidden">
+            <a href="validations.html" class="btn-outline btn-sm gap-2">
+              <span id="icon-validations"></span>
+              Fila de Validações
+            </a>
+            <a href="prompts.html" class="btn-outline btn-sm gap-2">
+              <span id="icon-prompts"></span>
+              Prompts
+            </a>
+          </div>
+
+          <button type="button" id="preferences-btn" class="btn-outline btn-sm gap-2">
+            <span id="preferences-icon"></span>
+            Preferências
+          </button>
+
+          <button type="button" id="ai-settings-btn" class="btn-outline btn-sm gap-2">
+            <span id="ai-settings-icon"></span>
+            Configurar IA
+          </button>
+
+          <div class="text-right">
+            <p class="text-sm font-medium text-slate-900" id="user-name"></p>
+            <div class="flex items-center gap-1 mt-1 justify-end">
+              <span id="icon-lock" class="text-slate-500"></span>
+              <p class="text-xs text-slate-500" id="user-role"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="mb-8">
+        <h2 class="text-3xl font-bold text-slate-900 mb-2">Bem-vindo, <span id="welcome-name"></span>!</h2>
+        <p class="text-slate-600">Gerencie seus projetos de cursos e acompanhe o progresso de cada etapa.</p>
+      </div>
+
+      <div class="mb-8">
+        <button type="button" id="new-project-btn" class="btn-primary gap-2">
+          <span id="icon-plus"></span>
+          Novo Projeto
+        </button>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 mb-4">Meus Projetos</h3>
+        <div id="projects-loading" class="flex items-center justify-center py-12">
+          <div class="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+        </div>
+        <div id="projects-empty" class="card py-12 text-center hidden">
+          <p class="text-slate-600 mb-4">Nenhum projeto criado ainda.</p>
+          <button type="button" class="btn-outline" id="empty-new-project-btn">Criar seu primeiro projeto</button>
+        </div>
+        <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="new-project-dialog">
+    <div class="p-6">
+      <h2 class="text-lg font-semibold">Criar Novo Projeto</h2>
+      <p class="text-sm text-muted-foreground mt-1 mb-4">Preencha os dados básicos do seu novo projeto de curso.</p>
+      <form id="new-project-form" class="space-y-4">
+        <div>
+          <label class="field-label" for="new-project-title">Título do Projeto</label>
+          <input class="field-input mt-1" id="new-project-title" placeholder="Ex: Curso de ESG" required />
+        </div>
+        <div>
+          <label class="field-label" for="new-project-description">Descrição (opcional)</label>
+          <textarea class="field-textarea mt-1" id="new-project-description" rows="3" placeholder="Descreva brevemente o objetivo do curso..."></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="btn-outline" onclick="closeDialog('new-project-dialog')">Cancelar</button>
+          <button type="submit" class="btn-primary" id="new-project-submit">Criar Projeto</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="ai-settings-dialog" style="max-width: 32rem;">
+    <div class="p-6">
+      <h2 class="text-lg font-semibold">Configuração do Azure OpenAI</h2>
+      <p class="text-sm text-muted-foreground mt-1 mb-4">
+        O CocrIA usa o Azure OpenAI para os assistentes de IA. Preencha os dados do seu recurso Azure para
+        habilitar as conversas.
+      </p>
+      <form id="ai-settings-form" class="space-y-3">
+        <div class="space-y-1">
+          <label class="field-label" for="ai-settings-base">Endpoint base</label>
+          <input class="field-input" id="ai-settings-base" placeholder="https://seu-recurso.services.ai.azure.com" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label class="field-label" for="ai-settings-deployment">Modelo</label>
+            <select class="field-input" id="ai-settings-deployment"></select>
+          </div>
+          <div class="space-y-1">
+            <label class="field-label" for="ai-settings-key">Chave API</label>
+            <input class="field-input" id="ai-settings-key" type="password" placeholder="Cole sua chave aqui" />
+          </div>
+        </div>
+        <p id="ai-settings-status" class="text-xs text-muted-foreground"></p>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="btn-outline" onclick="closeDialog('ai-settings-dialog')">Cancelar</button>
+          <button type="submit" class="btn-primary" id="ai-settings-save">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="preferences-dialog" style="max-width: 32rem;">
+    <div class="p-6">
+      <h2 class="text-lg font-semibold">Instruções para a IA</h2>
+      <p class="text-sm text-muted-foreground mt-1 mb-4">
+        Descreva como você quer que a IA se comunique com você: tom de voz, como te chamar, nível de
+        formalidade, padrão de escrita etc. Isso vale para as conversas em todas as etapas de todos os projetos.
+      </p>
+      <form id="preferences-form" class="space-y-3">
+        <div class="space-y-1">
+          <label class="field-label" for="preferences-textarea">Suas instruções</label>
+          <textarea class="field-textarea" id="preferences-textarea" rows="6" maxlength="10000" placeholder="Ex: Me chame de Dr. Silva. Use um tom formal e objetivo. Evite parágrafos longos, prefira listas."></textarea>
+        </div>
+        <p class="text-xs text-muted-foreground text-right"><span id="preferences-count">0</span>/10000</p>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="btn-outline" onclick="closeDialog('preferences-dialog')">Cancelar</button>
+          <button type="submit" class="btn-primary" id="preferences-save">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <div id="toast-root"></div>
+
+  <script src="/js/icons.js"></script>
+  <script src="/js/trpc.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/ai-settings.js"></script>
+  <script src="/js/preferences.js"></script>
+  <script src="/js/pages/dashboard.js"></script>
+</body>
+</html>

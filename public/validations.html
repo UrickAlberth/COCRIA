@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fila de Validações — CocrIA</title>
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <div id="loading" class="min-h-screen flex items-center justify-center">
+    <div class="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+  </div>
+
+  <div id="no-access" class="min-h-screen flex items-center justify-center hidden">
+    <div class="card p-8 text-center max-w-sm">
+      <p class="text-slate-600 mb-4">Acesso restrito a coordenadores</p>
+      <a href="dashboard.html" class="btn-primary">Voltar ao Dashboard</a>
+    </div>
+  </div>
+
+  <div id="app" class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 hidden">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex items-center gap-4">
+          <a href="dashboard.html" class="btn-ghost btn-sm gap-2">
+            <span id="icon-back"></span>
+            Voltar
+          </a>
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900">Fila de Validações</h1>
+            <p class="text-sm text-slate-500 mt-1">Aprove ou rejeite projetos em validação</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="tab-list mb-8" id="validation-tabs">
+        <button type="button" class="gap-2 tab-active" data-tab-trigger="pending">
+          <span id="icon-clock"></span><span class="hidden sm:inline">Pendentes</span>
+        </button>
+        <button type="button" class="gap-2" data-tab-trigger="approved">
+          <span id="icon-check"></span><span class="hidden sm:inline">Aprovadas</span>
+        </button>
+        <button type="button" class="gap-2" data-tab-trigger="rejected">
+          <span id="icon-xcircle"></span><span class="hidden sm:inline">Rejeitadas</span>
+        </button>
+      </div>
+
+      <div data-tab-content="pending">
+        <div class="card p-6">
+          <h3 class="text-lg font-semibold">Validações Pendentes</h3>
+          <p class="text-sm text-muted-foreground mb-4">Projetos aguardando sua aprovação</p>
+          <div id="pending-list" class="space-y-4"></div>
+        </div>
+      </div>
+
+      <div data-tab-content="approved" class="hidden">
+        <div class="card p-6">
+          <h3 class="text-lg font-semibold">Validações Aprovadas</h3>
+          <p class="text-sm text-muted-foreground mb-4">Projetos que foram aprovados</p>
+          <div id="approved-list" class="space-y-4"></div>
+        </div>
+      </div>
+
+      <div data-tab-content="rejected" class="hidden">
+        <div class="card p-6">
+          <h3 class="text-lg font-semibold">Validações Rejeitadas</h3>
+          <p class="text-sm text-muted-foreground mb-4">Projetos que foram rejeitados</p>
+          <div id="rejected-list" class="space-y-4"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="reject-dialog">
+    <div class="p-6">
+      <h2 class="text-lg font-semibold">Rejeitar validação</h2>
+      <p class="text-sm text-muted-foreground mt-1 mb-4">
+        Explique o que precisa ser ajustado em "<span id="reject-project-title"></span>" antes de reenviar.
+      </p>
+      <textarea class="field-textarea" id="reject-comments" rows="4" placeholder="Descreva os ajustes necessários (mínimo 10 caracteres)..."></textarea>
+      <div class="flex justify-end gap-2 pt-4">
+        <button type="button" class="btn-outline" onclick="closeDialog('reject-dialog')">Cancelar</button>
+        <button type="button" class="btn-destructive" id="reject-confirm">Confirmar rejeição</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast-root"></div>
+
+  <script src="/js/icons.js"></script>
+  <script src="/js/trpc.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/pages/validations.js"></script>
+</body>
+</html>

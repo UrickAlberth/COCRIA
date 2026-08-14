@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar — CocrIA</title>
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+    <div class="card w-full max-w-md">
+      <div class="text-center p-6 pb-4">
+        <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2 text-white" id="login-logo"></div>
+        <h1 class="text-2xl font-semibold">CocrIA</h1>
+        <p class="text-sm text-muted-foreground mt-1">Plataforma de Autoria de Cursos com IA</p>
+      </div>
+
+      <div class="p-6 pt-0">
+        <div class="tab-list w-full grid grid-cols-2 mb-6" id="login-tabs">
+          <button type="button" class="tab-active" data-tab-trigger="login">Entrar</button>
+          <button type="button" data-tab-trigger="register">Criar conta</button>
+        </div>
+
+        <form id="login-form" data-tab-content="login" class="space-y-4">
+          <div class="space-y-2">
+            <label class="field-label" for="login-email">Email</label>
+            <input class="field-input" id="login-email" type="email" required placeholder="seu@email.com" />
+          </div>
+          <div class="space-y-2">
+            <label class="field-label" for="login-password">Senha</label>
+            <input class="field-input" id="login-password" type="password" required />
+          </div>
+          <p id="login-error" class="text-sm text-destructive hidden"></p>
+          <button type="submit" class="btn-primary w-full" id="login-submit">Entrar</button>
+        </form>
+
+        <form id="register-form" data-tab-content="register" class="space-y-4 hidden">
+          <div class="space-y-2">
+            <label class="field-label" for="register-name">Nome</label>
+            <input class="field-input" id="register-name" required placeholder="Seu nome" />
+          </div>
+          <div class="space-y-2">
+            <label class="field-label" for="register-email">Email</label>
+            <input class="field-input" id="register-email" type="email" required placeholder="seu@email.com" />
+          </div>
+          <div class="space-y-2">
+            <label class="field-label" for="register-password">Senha</label>
+            <input class="field-input" id="register-password" type="password" required minlength="8" />
+            <p class="text-xs text-muted-foreground">Mínimo de 8 caracteres</p>
+          </div>
+          <p id="register-error" class="text-sm text-destructive hidden"></p>
+          <button type="submit" class="btn-primary w-full" id="register-submit">Criar conta</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-root"></div>
+
+  <script src="/js/icons.js"></script>
+  <script src="/js/trpc.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/pages/login.js"></script>
+</body>
+</html>

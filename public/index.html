@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CocrIA</title>
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <div class="min-h-screen flex items-center justify-center">
+    <div class="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+  </div>
+
+  <script src="/js/trpc.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    (async () => {
+      const user = await getCurrentUser();
+      window.location.href = user ? "dashboard.html" : "login.html";
+    })();
+  </script>
+</body>
+</html>

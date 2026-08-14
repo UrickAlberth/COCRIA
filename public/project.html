@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projeto — CocrIA</title>
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <div id="loading" class="min-h-screen flex items-center justify-center">
+    <div class="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+  </div>
+
+  <div id="app" class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 hidden">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex items-center gap-4">
+          <a href="dashboard.html" class="btn-ghost btn-sm gap-2">
+            <span id="icon-back"></span>
+            Voltar
+          </a>
+          <div class="flex-1">
+            <h1 class="text-2xl font-bold text-slate-900" id="project-title"></h1>
+            <p class="text-sm text-slate-500 mt-1" id="project-description"></p>
+          </div>
+          <button type="button" id="preferences-btn" class="btn-ghost btn-sm gap-2">
+            <span id="preferences-icon"></span>
+            Preferências
+          </button>
+          <button type="button" id="ai-settings-btn" class="btn-ghost btn-sm gap-2">
+            <span id="ai-settings-icon"></span>
+            Configurar IA
+          </button>
+          <span class="badge bg-blue-100 text-blue-800" id="project-status"></span>
+        </div>
+        <div class="mt-3 flex items-center gap-3">
+          <div class="flex-1 h-1.5 rounded-full bg-primary/20 overflow-hidden">
+            <div id="progress-bar" class="h-full bg-primary transition-all" style="width: 0%"></div>
+          </div>
+          <span class="text-xs text-slate-500 whitespace-nowrap" id="progress-label"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="tab-list grid grid-cols-5 mb-8" id="module-tabs">
+        <button type="button" data-tab-trigger="planning" class="gap-2 tab-active">
+          <span id="icon-planning"></span><span class="hidden sm:inline">Planejamento</span>
+        </button>
+        <button type="button" data-tab-trigger="sources" class="gap-2">
+          <span id="icon-sources"></span><span class="hidden sm:inline">Fontes</span>
+        </button>
+        <button type="button" data-tab-trigger="production" class="gap-2">
+          <span id="icon-production"></span><span class="hidden sm:inline">Produção</span>
+        </button>
+        <button type="button" data-tab-trigger="resources" class="gap-2">
+          <span id="icon-resources"></span><span class="hidden sm:inline">Recursos</span>
+        </button>
+        <button type="button" data-tab-trigger="consolidated" class="gap-2">
+          <span id="icon-consolidated"></span><span class="hidden sm:inline">Consolidado</span>
+        </button>
+      </div>
+
+      <div data-tab-content="planning" id="section-planning"></div>
+      <div data-tab-content="sources" id="section-sources" class="hidden"></div>
+      <div data-tab-content="production" id="section-production" class="hidden"></div>
+      <div data-tab-content="resources" id="section-resources" class="hidden"></div>
+
+      <div data-tab-content="consolidated" id="section-consolidated" class="hidden space-y-6">
+        <div class="card border-2 bg-slate-50 border-slate-200 p-6">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-white rounded-lg" id="icon-filestack-wrap"></div>
+            <div>
+              <h3 class="font-semibold">Documentos Consolidados</h3>
+              <p class="text-sm text-muted-foreground">Todos os documentos salvos no canvas de cada etapa, reunidos em um só lugar</p>
+            </div>
+          </div>
+        </div>
+        <div id="consolidated-content"></div>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="ai-settings-dialog" style="max-width: 32rem;">
+    <div class="p-6">
+      <h2 class="text-lg font-semibold">Configuração do Azure OpenAI</h2>
+      <p class="text-sm text-muted-foreground mt-1 mb-4">
+        O CocrIA usa o Azure OpenAI para os assistentes de IA. Preencha os dados do seu recurso Azure para
+        habilitar as conversas.
+      </p>
+      <form id="ai-settings-form" class="space-y-3">
+        <div class="space-y-1">
+          <label class="field-label" for="ai-settings-base">Endpoint base</label>
+          <input class="field-input" id="ai-settings-base" placeholder="https://seu-recurso.services.ai.azure.com" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label class="field-label" for="ai-settings-deployment">Modelo</label>
+            <select class="field-input" id="ai-settings-deployment"></select>
+          </div>
+          <div class="space-y-1">
+            <label class="field-label" for="ai-settings-key">Chave API</label>
+            <input class="field-input" id="ai-settings-key" type="password" placeholder="Cole sua chave aqui" />
+          </div>
+        </div>
+        <p id="ai-settings-status" class="text-xs text-muted-foreground"></p>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="btn-outline" onclick="closeDialog('ai-settings-dialog')">Cancelar</button>
+          <button type="submit" class="btn-primary" id="ai-settings-save">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="preferences-dialog" style="max-width: 32rem;">
+    <div class="p-6">
+      <h2 class="text-lg font-semibold">Instruções para a IA</h2>
+      <p class="text-sm text-muted-foreground mt-1 mb-4">
+        Descreva como você quer que a IA se comunique com você: tom de voz, como te chamar, nível de
+        formalidade, padrão de escrita etc. Isso vale para as conversas em todas as etapas de todos os projetos.
+      </p>
+      <form id="preferences-form" class="space-y-3">
+        <div class="space-y-1">
+          <label class="field-label" for="preferences-textarea">Suas instruções</label>
+          <textarea class="field-textarea" id="preferences-textarea" rows="6" maxlength="10000" placeholder="Ex: Me chame de Dr. Silva. Use um tom formal e objetivo. Evite parágrafos longos, prefira listas."></textarea>
+        </div>
+        <p class="text-xs text-muted-foreground text-right"><span id="preferences-count">0</span>/10000</p>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="btn-outline" onclick="closeDialog('preferences-dialog')">Cancelar</button>
+          <button type="submit" class="btn-primary" id="preferences-save">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <div id="toast-root"></div>
+
+  <script src="/vendor/marked.min.js"></script>
+  <script src="/vendor/turndown.min.js"></script>
+  <script src="/js/icons.js"></script>
+  <script src="/js/trpc.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/ai-settings.js"></script>
+  <script src="/js/preferences.js"></script>
+  <script src="/js/pages/project.js"></script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+@import "tailwindcss";
+
+@source "../*.html";
+@source "../js/**/*.js";
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+:root {
+  --primary: var(--color-blue-700);
+  --primary-foreground: var(--color-blue-50);
+  --radius: 0.65rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.235 0.015 65);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.235 0.015 65);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.235 0.015 65);
+  --secondary: oklch(0.98 0.001 286.375);
+  --secondary-foreground: oklch(0.4 0.015 65);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.141 0.005 285.823);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --ring: oklch(0.623 0.214 259.815);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href],
+  select:not(:disabled) {
+    @apply cursor-pointer;
+  }
+}
+
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+      max-width: 1280px;
+    }
+  }
+
+  /* Buttons — mirror the shadcn/ui button variants used across the app */
+  .btn-primary,
+  .btn-outline,
+  .btn-ghost,
+  .btn-destructive {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium px-4 h-9 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap;
+  }
+  .btn-sm {
+    @apply h-8 px-3 text-sm;
+  }
+  .btn-icon {
+    @apply h-9 w-9 px-0;
+  }
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:opacity-90;
+  }
+  .btn-outline {
+    @apply border border-border bg-transparent hover:bg-accent;
+  }
+  .btn-ghost {
+    @apply bg-transparent hover:bg-accent;
+  }
+  .btn-destructive {
+    @apply bg-destructive text-destructive-foreground hover:opacity-90;
+  }
+
+  /* Form controls */
+  .field-input,
+  .field-textarea {
+    @apply w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/50;
+  }
+  .field-textarea {
+    @apply resize-none;
+  }
+  .field-label {
+    @apply text-sm font-medium text-foreground;
+  }
+
+  /* Card */
+  .card {
+    @apply rounded-xl border border-border bg-card text-card-foreground shadow-sm;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  /* Tabs */
+  .tab-list {
+    @apply inline-flex items-center gap-1 rounded-lg bg-muted p-1;
+  }
+  [data-tab-trigger] {
+    @apply flex items-center justify-center gap-1.5 rounded-md px-3 h-8 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  [data-tab-trigger].tab-active {
+    @apply bg-background text-foreground shadow-sm;
+  }
+
+  /* Native <dialog> styling — replaces Radix Dialog */
+  dialog {
+    @apply rounded-xl border border-border bg-card text-card-foreground shadow-lg p-0 w-full max-w-md;
+  }
+  dialog::backdrop {
+    @apply bg-black/50;
+  }
+
+  /* Prose styling for rendered markdown (chat + consolidated docs) */
+  .prose :where(h1, h2, h3) {
+    @apply font-semibold mt-4 mb-2;
+  }
+  .prose h3 {
+    @apply text-base;
+  }
+  .prose p {
+    @apply mb-3 leading-relaxed;
+  }
+  .prose ul,
+  .prose ol {
+    @apply mb-3 pl-5 space-y-1;
+  }
+  .prose ul {
+    @apply list-disc;
+  }
+  .prose ol {
+    @apply list-decimal;
+  }
+  .prose strong {
+    @apply font-semibold;
+  }
+  .prose table {
+    @apply w-full text-sm border-collapse mb-3;
+  }
+  .prose th,
+  .prose td {
+    @apply border border-border px-2 py-1 text-left;
+  }
+
+  /* Canvas document editor — Google Docs / ChatGPT Canvas style */
+  .canvas-toolbar {
+    @apply flex items-center gap-1 px-3 py-2 border-b bg-card shrink-0 flex-wrap;
+  }
+  .canvas-toolbar-btn {
+    @apply inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none;
+  }
+  .canvas-toolbar-btn.is-active {
+    @apply bg-accent text-foreground;
+  }
+  .canvas-toolbar-sep {
+    @apply w-px h-5 bg-border mx-1 shrink-0;
+  }
+  .canvas-style-select {
+    @apply h-8 rounded-md border border-transparent hover:border-border bg-transparent px-2 text-sm outline-none cursor-pointer;
+  }
+  .canvas-title-input {
+    @apply text-sm font-medium bg-transparent outline-none border border-transparent hover:border-border focus:border-input rounded-md px-2 py-1 min-w-0 flex-1;
+  }
+  .canvas-page-wrap {
+    @apply flex-1 overflow-y-auto bg-muted/40 p-6;
+  }
+  .canvas-page {
+    @apply bg-white text-foreground rounded-lg shadow-sm border mx-auto max-w-3xl min-h-full px-10 py-10 outline-none;
+  }
+  .canvas-page :where(h1, h2, h3, h4) {
+    @apply font-semibold mt-5 mb-2;
+  }
+  .canvas-page h1 {
+    @apply text-2xl;
+  }
+  .canvas-page h2 {
+    @apply text-xl;
+  }
+  .canvas-page h3 {
+    @apply text-lg;
+  }
+  .canvas-page p {
+    @apply mb-3 leading-relaxed;
+  }
+  .canvas-page ul,
+  .canvas-page ol {
+    @apply mb-3 pl-6 space-y-1;
+  }
+  .canvas-page ul {
+    @apply list-disc;
+  }
+  .canvas-page ol {
+    @apply list-decimal;
+  }
+  .canvas-page strong {
+    @apply font-semibold;
+  }
+  .canvas-page table {
+    @apply w-full text-sm border-collapse mb-3;
+  }
+  .canvas-page th,
+  .canvas-page td {
+    @apply border border-border px-2 py-1 text-left;
+  }
+  .canvas-page.is-empty::before {
+    content: attr(data-placeholder);
+    @apply text-muted-foreground pointer-events-none;
+  }
+
+  /* Toast container */
+  #toast-root {
+    @apply fixed bottom-4 right-4 z-[100] flex flex-col gap-2 items-end;
+  }
+  .toast {
+    @apply bg-foreground text-background text-sm rounded-lg px-4 py-3 shadow-lg flex items-center gap-3 max-w-sm;
+  }
+  .toast.toast-error {
+    @apply bg-destructive text-destructive-foreground;
+  }
+}
