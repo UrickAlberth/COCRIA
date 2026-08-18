@@ -144,11 +144,13 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     body.instructions = systemText;
   }
 
-  // When a knowledge base (Vector Store) is configured, let the model decide
-  // whether to consult it via the file_search tool.
+  // Built-in tools the model can call on its own (tool_choice: "auto" above lets
+  // it decide when each is actually useful for the turn).
+  const tools: Record<string, unknown>[] = [{ type: "web_search" }];
   if (config.vectorStoreId) {
-    body.tools = [{ type: "file_search", vector_store_ids: [config.vectorStoreId], max_num_results: 10 }];
+    tools.push({ type: "file_search", vector_store_ids: [config.vectorStoreId], max_num_results: 10 });
   }
+  body.tools = tools;
 
   const data = await azureFetch(config, "/responses", {
     method: "POST",
