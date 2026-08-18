@@ -152,6 +152,7 @@ const ALTER_TABLES_SQL = [
   "ALTER TABLE appSettings ADD COLUMN azureApiKey TEXT",
   "ALTER TABLE appSettings ADD COLUMN azureVectorStoreId TEXT",
   "ALTER TABLE appSettings ADD COLUMN customInstructions TEXT",
+  "ALTER TABLE chatHistory ADD COLUMN sources TEXT",
 ];
 
 // Lazily open the local SQLite file so the tool works with zero external setup.
@@ -320,7 +321,7 @@ export async function createOrUpdatePlanningStage(projectId: number, data: any) 
 }
 
 // Chat history queries
-export async function saveChatMessage(projectId: number, userId: number, module: string, role: string, message: string) {
+export async function saveChatMessage(projectId: number, userId: number, module: string, role: string, message: string, sources?: { title: string; url: string }[]) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -330,6 +331,7 @@ export async function saveChatMessage(projectId: number, userId: number, module:
     module: module as any,
     role: role as any,
     message,
+    sources: sources?.length ? JSON.stringify(sources) : null,
   });
 }
 

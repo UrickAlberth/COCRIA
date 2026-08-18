@@ -171,6 +171,8 @@ export const chatHistory = sqliteTable("chatHistory", {
   module: text("module", { enum: ["planning", "sources", "production", "resources"] }).notNull(),
   role: text("role", { enum: ["user", "assistant", "system"] }).notNull(),
   message: text("message").notNull(),
+  /** JSON array of {title, url} — set when the assistant used the web_search tool for this reply. */
+  sources: text("sources"),
   createdAt: int("createdAt", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
 });
 

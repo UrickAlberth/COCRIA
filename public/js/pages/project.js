@@ -338,13 +338,36 @@ function buildChatPane(moduleKey, chatEl, canvasEl) {
             </div>
           `;
         }
+        const webSearchBadge = m.webSearchUsed
+          ? `<div class="mb-2 inline-flex items-center gap-1.5 rounded-full bg-blue-100 text-blue-800 px-2.5 py-0.5 text-xs font-medium">
+              ${iconSvg("globe", "size-3.5")} Pesquisou na internet
+            </div>`
+          : "";
+        const sourcesList = m.citations?.length
+          ? `<div class="mt-2 pt-2 border-t border-black/10">
+              <p class="text-xs font-medium text-muted-foreground mb-1">Fontes:</p>
+              <ul class="space-y-1">
+                ${m.citations
+                  .map(
+                    (c) => `
+                  <li class="text-xs truncate">
+                    <a href="${c.url}" target="_blank" rel="noopener noreferrer" class="text-blue-700 hover:underline" title="${escapeHtml(c.url)}">${escapeHtml(c.title)}</a>
+                  </li>
+                `
+                  )
+                  .join("")}
+              </ul>
+            </div>`
+          : "";
         return `
           <div class="flex gap-3 justify-start items-start">
             <div class="size-8 shrink-0 mt-1 rounded-full bg-primary/10 flex items-center justify-center">
               ${iconSvg("sparkles", "size-4 text-primary")}
             </div>
             <div class="max-w-[80%] rounded-lg px-4 py-2.5 bg-muted">
+              ${webSearchBadge}
               <div class="prose max-w-none">${marked.parse(m.content)}</div>
+              ${sourcesList}
               <button type="button" class="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground" data-save-msg="${i}">
                 ${iconSvg("bookmarkPlus", "size-3.5")}
                 Salvar no Canvas
@@ -378,7 +401,12 @@ function buildChatPane(moduleKey, chatEl, canvasEl) {
   (async () => {
     try {
       const history = await trpc.query("projects.getChatHistory", { projectId: Number(projectId), module: moduleKey });
-      messages = history.filter((m) => m.role !== "system").map((m) => ({ role: m.role, content: m.message }));
+      messages = history
+        .filter((m) => m.role !== "system")
+        .map((m) => {
+          const citations = m.sources ? JSON.parse(m.sources) : [];
+          return { role: m.role, content: m.message, citations, webSearchUsed: citations.length > 0 };
+        });
       renderMessages();
     } catch (err) {
       toast.error(err.message);
@@ -426,7 +454,7 @@ function buildChatPane(moduleKey, chatEl, canvasEl) {
           ? attachmentsToSend.map((a) => ({ filename: a.filename, mimeType: a.mimeType, dataUrl: a.dataUrl }))
           : undefined,
       });
-      messages.push({ role: "assistant", content: response.message });
+      messages.push({ role: "assistant", content: response.message, webSearchUsed: response.webSearchUsed, citations: response.citations });
     } catch (err) {
       if (err.message && err.message.includes(AZURE_CONFIG_MISSING_MESSAGE)) {
         toast.error("IA não configurada. Configure o Azure OpenAI para continuar.", {

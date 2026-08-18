@@ -179,11 +179,13 @@ export const projectsRouter = router({
       const assistantMessage = typeof assistantContent === 'string' ? assistantContent : JSON.stringify(assistantContent);
 
       // Save assistant response
-      await saveChatMessage(input.projectId, ctx.user.id, input.module, "assistant", assistantMessage);
+      await saveChatMessage(input.projectId, ctx.user.id, input.module, "assistant", assistantMessage, response.citations);
 
       return {
         message: assistantMessage,
         role: "assistant",
+        webSearchUsed: response.webSearchUsed,
+        citations: response.citations,
       };
     }),
 });

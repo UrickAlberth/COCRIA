@@ -59,6 +59,10 @@ export type InvokeResult = {
     completion_tokens: number;
     total_tokens: number;
   };
+  /** True when the model actually invoked the web_search tool for this reply (it's offered every turn but only used when the model decides it's needed). */
+  webSearchUsed: boolean;
+  /** Deduplicated {title, url} pairs pulled from the reply's url_citation annotations. */
+  citations: { title: string; url: string }[];
 };
 
 const flattenTextContent = (content: MessageContent | MessageContent[]): string => {
@@ -116,6 +120,29 @@ function extractOutputText(data: any): string {
   return texts.join("\n").trim();
 }
 
+// The Responses API records each tool invocation as its own `output` item
+// (type "web_search_call") separate from the final message, and lists the
+// sources it actually cited as `url_citation` annotations on the message's
+// text content — that's the signal we surface to the UI as "searched the web".
+function extractWebSearch(data: any): { webSearchUsed: boolean; citations: { title: string; url: string }[] } {
+  const webSearchUsed = (data?.output ?? []).some((item: any) => item?.type === "web_search_call");
+
+  const seen = new Set<string>();
+  const citations: { title: string; url: string }[] = [];
+  for (const item of data?.output ?? []) {
+    if (item?.type !== "message") continue;
+    for (const content of item.content ?? []) {
+      for (const annotation of content?.annotations ?? []) {
+        if (annotation?.type !== "url_citation" || !annotation.url || seen.has(annotation.url)) continue;
+        seen.add(annotation.url);
+        citations.push({ title: annotation.title || annotation.url, url: annotation.url });
+      }
+    }
+  }
+
+  return { webSearchUsed, citations };
+}
+
 export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   const config = await requireAzureConfig();
 
@@ -145,8 +172,12 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   }
 
   // Built-in tools the model can call on its own (tool_choice: "auto" above lets
-  // it decide when each is actually useful for the turn).
-  const tools: Record<string, unknown>[] = [{ type: "web_search" }];
+  // it decide when each is actually useful for the turn). Location defaults to
+  // "US" server-side otherwise, which skews results away from Brazilian sources
+  // for a Portuguese-language TJMG tool.
+  const tools: Record<string, unknown>[] = [
+    { type: "web_search", user_location: { type: "approximate", country: "BR" } },
+  ];
   if (config.vectorStoreId) {
     tools.push({ type: "file_search", vector_store_ids: [config.vectorStoreId], max_num_results: 10 });
   }
@@ -159,9 +190,12 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   });
 
   const content = extractOutputText(data);
+  const { webSearchUsed, citations } = extractWebSearch(data);
 
   return {
     id: data?.id ?? `azure-${Date.now()}`,
+    webSearchUsed,
+    citations,
     created: data?.created_at ?? Math.floor(Date.now() / 1000),
     model: data?.model ?? config.deployment,
     choices: [{
